@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+.env.local
+
+# Models & data (keep repo small)
+models/
+data/
+chroma_db/
+logs/
+
+# VS Code
+.vscode/
+
+# Docker artifacts
+*.log
+
+# Notebooks cache
+.ipynb_checkpoints/

@@ -1,405 +1,141 @@
-# AI-Powered Study Assistant 📚
-
-A Mini NotebookLM clone for intelligent document processing, question answering, and knowledge management using Retrieval-Augmented Generation (RAG).
-
-## 🌟 Features
-
-### Core Capabilities
-- **PDF Processing**: Upload and extract text from PDFs with OCR support
-- **Text Summarization**: 
-  - Extractive summarization using TextRank algorithm
-  - Abstractive summarization using BART
-- **Named Entity Recognition**: Extract entities using fine-tuned BERT
-- **Keyword Extraction**: Automatic keyword identification using RAKE
-- **Semantic Search**: ChromaDB vector database for similarity search
-- **Question Answering**: RAG-powered Q&A using DistilBERT
-- **LLM Generation**: Generate answers with GPT-2 or custom models
-
-### Technical Features
-- **FastAPI Backend**: RESTful API with automatic documentation
-- **Fine-tuning Support**: T5 with LoRA for efficient adaptation
-- **Experiment Tracking**: MLflow integration for model versioning
-- **Performance Profiling**: Built-in benchmarking and monitoring
-- **Docker Support**: Containerized deployment
-- **Comprehensive Testing**: Unit and integration tests
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11+
-- Docker (optional, for containerized deployment)
-- Tesseract OCR (for PDF processing)
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yossufyasser1/Depi-grad-project--main.git
-cd Depi-grad-project--main
-```
-
-2. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-3. **Download required models**
-```bash
-# Download spaCy model
-python -m spacy download en_core_web_sm
-
-# Download NLTK data
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
-
-# Download datasets (optional, for training)
-python src/preprocessing/download_datasets.py
-```
-
-4. **Configure environment**
-```bash
-# Copy example environment file
-cp .env .env.local
-
-# Edit .env.local with your settings
-```
-
-5. **Run the API**
-```bash
-python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-6. **Access the application**
-- API: http://localhost:8000
-- Interactive docs: http://localhost:8000/docs
-- Alternative docs: http://localhost:8000/redoc
-
-## 🐳 Docker Deployment
-
-### Using Docker Compose (Recommended)
-```bash
-# Build and run
-docker-compose up --build
-
-# Run in background
-docker-compose up -d
-
-# Stop
-docker-compose down
-```
-
-### Using Docker Directly
-```bash
-# Build image
-docker build -t study-assistant:latest .
-
-# Run container
-docker run -p 8000:8000 \
-  -v $(pwd)/data:/app/data \
-  -v $(pwd)/models:/app/models \
-  -v $(pwd)/chroma_db:/app/chroma_db \
-  study-assistant:latest
-```
-
-## 📁 Project Structure
-
-```
-Depi-grad-project--main/
-├── api/                        # FastAPI application
-│   ├── main.py                # API endpoints and app configuration
-│   └── schemas.py             # Pydantic models for validation
-├── src/                       # Core application code
-│   ├── preprocessing/         # Data preprocessing modules
-│   │   ├── pdf_processor.py  # PDF text extraction with OCR
-│   │   ├── text_preprocessor.py # NLP preprocessing
-│   │   └── dataset_loader.py # Dataset loading utilities
-│   ├── training/              # Model training modules
-│   │   ├── textrank_summarizer.py    # Extractive summarization
-│   │   ├── bart_summarizer.py        # Abstractive summarization
-│   │   ├── bert_ner.py               # Named entity recognition
-│   │   ├── keyword_extractor.py      # Keyword extraction
-│   │   ├── t5_lora_trainer.py        # T5 fine-tuning with LoRA
-│   │   └── distilbert_qa.py          # Question answering
-│   ├── inference/             # Inference and RAG
-│   │   ├── chromadb_manager.py       # Vector database management
-│   │   ├── rag_retriever.py          # RAG document retrieval
-│   │   └── llm_reader.py             # LLM answer generation
-│   ├── config.py              # Configuration management
-│   ├── evaluation_metrics.py # Evaluation utilities
-│   ├── experiment_logger.py   # MLflow experiment tracking
-│   └── performance_profiler.py # Performance benchmarking
-├── tests/                     # Test suite
-│   ├── test_unit.py          # Unit tests
-│   ├── test_integration.py   # Integration tests
-│   └── conftest.py           # PyTest configuration
-├── data/                      # Data directory
-│   ├── raw/                  # Raw uploaded documents
-│   └── processed/            # Processed data
-├── models/                    # Model storage
-├── chroma_db/                 # Vector database storage
-├── logs/                      # Application logs
-├── mlruns/                    # MLflow experiment tracking
-├── Dockerfile                 # Docker image definition
-├── docker-compose.yml         # Docker Compose configuration
-├── requirements.txt           # Python dependencies
-├── .env                       # Environment variables
-├── .gitignore                # Git ignore rules
-├── pytest.ini                # PyTest configuration
-├── DEPLOYMENT_CHECKLIST.md   # Deployment guide
-└── README.md                 # This file
-```
-
-## 🔧 Configuration
-
-Edit the `.env` file to customize:
-
-```env
-# API Configuration
-API_HOST=0.0.0.0
-API_PORT=8000
-LOG_LEVEL=INFO
-
-# Model Paths
-EMBEDDING_MODEL=all-MiniLM-L6-v2
-LLM_MODEL=gpt2
-SUMMARIZER_MODEL=facebook/bart-large-cnn
-
-# Vector Database
-TOP_K_RETRIEVAL=5
-SIMILARITY_THRESHOLD=0.5
-
-# Training
-BATCH_SIZE=8
-LEARNING_RATE=2e-5
-NUM_EPOCHS=3
-```
-
-## 📚 API Endpoints
-
-### Health Check
-```bash
-GET /health
-```
-
-### Upload Document
-```bash
-POST /upload
-Content-Type: multipart/form-data
-
-# Form data: file (PDF)
-```
-
-### Chat with Documents
-```bash
-POST /chat?query=What is machine learning?&top_k=5
-```
-
-### Summarize Text
-```bash
-POST /summarize?text=Your text here&summary_type=extractive
-# summary_type: extractive or abstractive
-```
-
-### Extract Keywords
-```bash
-POST /extract-keywords?text=Your text here&top_n=10
-```
-
-### List Documents
-```bash
-GET /documents
-```
-
-### Delete Document
-```bash
-DELETE /documents/{document_id}
-```
-
-## 🧪 Testing
-
-### Run All Tests
-```bash
-pytest tests/ -v
-```
-
-### Run Specific Test Suites
-```bash
-# Unit tests only
-pytest tests/test_unit.py -v
-
-# Integration tests only
-pytest tests/test_integration.py -v
-
-# With coverage
-pytest --cov=src --cov-report=html tests/
-```
-
-### Performance Benchmarking
-```bash
-# Run full benchmark suite
-python src/performance_profiler.py
-
-# Or import and run specific benchmarks
-python -c "from src.performance_profiler import run_full_benchmark; run_full_benchmark()"
-```
-
-## 🎓 Model Training
-
-### Fine-tune T5 with LoRA
-```python
-from src.training.t5_lora_trainer import T5LoRATrainer
-
-trainer = T5LoRATrainer()
-trainer.setup_model_with_lora()
-trainer.fine_tune(train_dataset, eval_dataset)
-```
-
-### Train BERT NER
-```python
-from src.training.bert_ner import BertNERModel
-
-model = BertNERModel()
-model.fine_tune(train_dataset, eval_dataset)
-```
-
-### Track Experiments with MLflow
-```python
-from src.experiment_logger import ExperimentLogger
-
-logger = ExperimentLogger()
-logger.start_run("experiment_name")
-logger.log_params({"learning_rate": 2e-5})
-logger.log_metrics({"accuracy": 0.95})
-logger.end_run()
-```
-
-## 📊 Evaluation
-
-The project includes comprehensive evaluation metrics:
-
-- **Summarization**: ROUGE, BLEU
-- **NER**: F1, Precision, Recall (seqeval)
-- **QA**: Exact Match, F1
-- **Retrieval**: Precision@K, Recall@K, MRR, MAP
-
-```python
-from src.evaluation_metrics import EvaluationMetrics
-
-metrics = EvaluationMetrics()
-rouge_scores = metrics.compute_rouge(reference, hypothesis)
-f1_score = metrics.compute_f1_ner(true_labels, pred_labels)
-```
-
-## 🛠️ Development
-
-### Code Formatting
-```bash
-# Format code
-black src/ api/ tests/
-
-# Check formatting
-black --check src/ api/ tests/
-```
-
-### Linting
-```bash
-flake8 src/ api/ tests/
-```
-
-### Pre-commit Hooks (Optional)
-```bash
-pip install pre-commit
-pre-commit install
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-**1. Import errors**
-```bash
-# Ensure you're in the project root and Python path is set
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-```
-
-**2. Tesseract not found**
-```bash
-# Ubuntu/Debian
-sudo apt-get install tesseract-ocr
-
-# macOS
-brew install tesseract
-
-# Windows: Download installer from GitHub
-```
-
-**3. CUDA/GPU issues**
-```bash
-# Check CUDA availability
-python -c "import torch; print(torch.cuda.is_available())"
-
-# Use CPU-only if needed (edit .env)
-USE_CUDA=False
-```
-
-**4. Memory issues**
-```bash
-# Reduce batch size in .env
-BATCH_SIZE=4
-
-# Or enable model quantization
-```
-
-## 📈 Performance
-
-Target metrics on standard hardware:
-- Document retrieval: < 500ms
-- Extractive summarization: < 1s
-- Abstractive summarization: < 5s
-- Question answering: < 2s
-- Keyword extraction: < 500ms
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is part of the DEPI graduation project.
-
-## 👥 Authors
-
-- Yossuf Yasser (@yossufyasser1)
-
-## 🙏 Acknowledgments
-
-- NotebookLM by Google for inspiration
-- HuggingFace for transformer models
-- FastAPI for the excellent web framework
-- ChromaDB for vector storage
-
-## 📞 Support
-
-For issues, questions, or contributions:
-- GitHub Issues: [Create an issue](https://github.com/yossufyasser1/Depi-grad-project--main/issues)
-- Documentation: See `/docs` endpoint when running the API
-
-## 🗺️ Roadmap
-
-- [ ] Add support for more document formats (Word, Excel)
-- [ ] Implement user authentication
-- [ ] Add multi-language support
-- [ ] Create web UI frontend
-- [ ] Add batch processing capabilities
-- [ ] Implement caching for faster responses
-- [ ] Add support for larger LLMs (Llama, Mistral)
-- [ ] Deploy to cloud platforms (AWS, GCP, Azure)
-
----
-
-**Made with ❤️ for the DEPI graduation project**
+# AI Study Assistant (Backend)
+
+Comprehensive documentation for the FastAPI backend implementing local-first Retrieval-Augmented Generation (RAG), summarization, and Q&A generation.
+
+## Overview
+- Purpose: Answer study questions from your documents with RAG, generate summaries, and create Q&A pairs.
+- Local-first: Retrieval uses FAISS + sentence-transformers locally. Generation uses Ollama when enabled; Gemini is fallback.
+- Stack: FastAPI, LangChain, FAISS, sentence-transformers, Transformers (PyTorch), optional Google Generative AI.
+
+## Architecture
+- `main.py`: FastAPI app and endpoints.
+- `src/config.py`: Central configuration for paths, models, providers.
+- `src/processing/pdf_processor.py`: Extracts text/chunks from PDFs.
+- `src/processing/improved_rag_retriever.py`: Builds/queries FAISS with local embeddings.
+- `src/inference/improved_llm_reader.py`: Provider-aware LLM (Ollama or Gemini) for answers.
+- `src/inference/summarizer.py`: BART-large-CNN summarization with hierarchical synthesis.
+- `src/inference/qa_generator.py`: FLAN‑T5 Q&A generation from plain text.
+
+## Data Flow & Workflows
+- Upload & Index
+   - Client posts a PDF to `/upload`.
+   - PDF is parsed → text → chunked.
+   - Embeddings computed via `sentence-transformers` and stored into FAISS (`vector_db/`).
+- Chat (RAG)
+   - Client posts a question to `/chat`.
+   - If FAISS has documents: retrieve top-k chunks → format a `context` string.
+   - `ImprovedLLMReader` builds a prompt with `question + context + short history` and generates the answer.
+- Chat (No RAG)
+   - If FAISS empty: `generate_simple_answer` produces a general answer via provider.
+- Summarization
+   - Client posts text to `/summarize`.
+   - Input cleaning (remove TOC dots, headers/footers, hyphenations) → chunk summaries → synthesized final summary.
+- Q&A Generation
+   - Client posts text to `/generate-qa`.
+   - FLAN‑T5 creates a set of Q&A pairs from the text.
+
+## Endpoints
+- `POST /upload`: Upload a single PDF; indexes chunks.
+- `POST /upload-with-qa?num_questions=10`: Upload PDF, generate Q&A, then index.
+- `POST /chat`: Ask a question; uses RAG context when available.
+- `POST /summarize`: Summarize text (`max_length`, `min_length` supported).
+- `POST /generate-qa`: Generate Q&A pairs from text.
+- `GET /health`: Server health + document count.
+- `GET /rag-stats`: RAG stats + conversation metadata.
+- `DELETE /documents`: Clear FAISS cache and reset.
+
+## Configuration (`src/config.py`)
+- Paths
+   - `UPLOAD_DIR`: `data/uploads`
+   - `FAISS_DB_DIR`: `vector_db`
+- RAG
+   - `EMBEDDING_MODEL`: `sentence-transformers/all-mpnet-base-v2`
+   - `RAG_CHUNK_SIZE`, `RAG_CHUNK_OVERLAP`, `RAG_TOP_K`
+   - `RAG_TEMPERATURE`, `RAG_MAX_OUTPUT_TOKENS`
+- Generation Providers
+   - Ollama (local): `OLLAMA_ENABLED`, `OLLAMA_MODEL` (e.g., `llama3.2:latest`), `OLLAMA_BASE_URL`
+   - Gemini (fallback): `GEMINI_API_KEY`, `GEMINI_MODEL` (e.g., `models/gemini-2.0-flash`)
+- Tasks
+   - Summarization: `SUMMARIZATION_MODEL = "facebook/bart-large-cnn"`
+   - Q&A: `QA_MODEL = "google/flan-t5-base"`
+
+## Models & Rationale
+- Embeddings: `all-mpnet-base-v2` — strong semantic retrieval; CPU-friendly.
+- Vector store: FAISS — fast similarity search; persisted locally.
+- LLM (Chat):
+   - Ollama (`llama3.2:latest` or smaller variants) — private, local inference.
+   - Gemini — cloud fallback for environments without Ollama.
+- Summarization: BART-large-CNN — high quality abstractive summaries.
+- Q&A: FLAN‑T5‑base — effective instruction-tuned generation for pairs.
+
+## Summarization Strategy
+- Cleaning: remove TOC dot leaders, repeated section headers, page artifacts, and de-hyphenate lines.
+- Parameters: defaults `max_length=1000`, `min_length=350`, `num_beams=5`, `repetition_penalty=1.2`.
+- Hierarchical: chunk long inputs (~4000 chars, overlap 400), summarize per-chunk, then synthesize a final summary.
+
+## Provider Selection (LLM)
+- `ImprovedLLMReader` selects provider at init:
+   - If `Config.OLLAMA_ENABLED=True`: uses `langchain_community.llms.Ollama` and `invoke(prompt)`.
+   - Else: uses Gemini chat (`google.generativeai`), keeps a short chat history, calls `send_message(content)`.
+- Conversation: recent messages are included for coherence; name detection heuristics applied.
+
+## RAG Details
+- Document loading: `PyPDFLoader`, `Docx2txtLoader`, `TextLoader`, `UnstructuredMarkdownLoader`.
+- Chunking: `RecursiveCharacterTextSplitter` using `RAG_CHUNK_SIZE` and `RAG_CHUNK_OVERLAP`.
+- Indexing: `FAISS.from_documents(chunks, embeddings)` and `save_local(cache_dir)`.
+- Retrieval: `similarity_search` (or `_with_score`) → format context with `---DOCUMENT SEPARATOR---`.
+
+## Setup
+- Python 3.10–3.12 recommended.
+- Install dependencies:
+   - `pip install langchain langchain-community sentence-transformers faiss-cpu pypdf docx2txt unstructured`
+   - `pip install transformers`
+   - CPU PyTorch: `pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu`
+   - Optional Gemini: `pip install google-generativeai`
+- Ollama (Windows):
+   - Install via official installer: https://ollama.com/download/windows
+   - Ensure API reachable: `curl http://localhost:11434/api/version`
+   - Check models: `curl http://localhost:11434/api/tags`
+- Configure `src/config.py`:
+   - Enable Ollama: `OLLAMA_ENABLED=True`, set `OLLAMA_MODEL` (e.g., `llama3.2:latest`).
+
+## Run
+- Development:
+   - `python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000`
+   - Or `python main.py` (no auto-reload unless configured).
+- Open docs: `http://localhost:8000/docs`
+
+## Usage Examples (CMD-friendly)
+- Upload a PDF:
+   - `curl -X POST "http://localhost:8000/upload" -H "Content-Type: application/pdf" --data-binary @"Y:\\projects\\Depi-grad-project- - Copy\\data\\uploads\\sample.pdf"`
+- Chat with RAG:
+   - `curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d "{\"question\":\"Explain chapter 2\",\"top_k\":5}"`
+- Summarize text:
+   - `curl -X POST http://localhost:8000/summarize -H "Content-Type: application/json" -d "{\"text\":\"<paste text>\",\"max_length\":1000,\"min_length\":350}"`
+- Health/Stats:
+   - `curl http://localhost:8000/health`
+   - `curl http://localhost:8000/rag-stats`
+
+## Operational Tips
+- Prefer smaller Ollama models on CPU for speed (e.g., `llama3.2:3b`).
+- Keep `top_k` modest (3–5); too much context hurts focus and speed.
+- Cap context length in `ImprovedRAGRetriever.format_context` if latency grows.
+- If FAISS/cpu wheel issues occur on specific Python versions, consider upgrading Python or using an alternative vector store temporarily.
+
+## Troubleshooting
+- Ollama CLI missing but API works:
+   - Use full path (`"C:\\Program Files\\Ollama\\ollama.exe" serve`) or only HTTP API.
+   - Add to PATH: `setx PATH "%PATH%;C:\\Program Files\\Ollama"` then reopen terminal.
+- Gemini rate limits:
+   - Ensure `OLLAMA_ENABLED=True` to avoid cloud dependence; keep retrieval local.
+- Transformers import issues (TensorFlow/JAX):
+   - We set `TRANSFORMERS_NO_TF/JAX/FLAX` env flags in `summarizer.py` and avoid pipelines path.
+
+## Future Enhancements
+- PDFProcessor cleanup for headers/footers and page numbering.
+- Context length caps and reranking.
+- Streaming responses for chat.
+- Model registry in config for easier switching and versioning.
+
+## License
+- Proprietary project files. Do not distribute models or PDFs included in your environment.

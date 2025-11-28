@@ -1,59 +1,42 @@
-from dataclasses import dataclass
-from pathlib import Path
+"""
+Configuration file for AI Study Assistant
+Defines paths and model settings
+"""
+import os
 
-@dataclass
 class Config:
-    # Data paths
-    RAW_DATA_PATH: Path = Path('./data/raw')
-    PROCESSED_DATA_PATH: Path = Path('./data/processed')
-    MODEL_SAVE_PATH: Path = Path('./models')
-    CHECKPOINT_PATH: Path = Path('./models/checkpoints')
+    # Base directory (project root)
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    # Dataset configurations
-    SQUAD_DATASET: str = 'squad_v2'
-    CONLL_DATASET: str = 'conll2003'
-    TRAIN_RATIO: float = 0.8
-    VAL_RATIO: float = 0.1
-    TEST_RATIO: float = 0.1
+    # Data storage paths
+    UPLOAD_DIR = os.path.join(BASE_DIR, "data", "uploads")  # Path for uploaded documents
+    FAISS_DB_DIR = os.path.join(BASE_DIR, "vector_db")      # Path for FAISS vector store
     
     # Model configurations
-    EMBEDDING_MODEL_NAME: str = 'all-MiniLM-L6-v2'
-    LLM_MODEL_NAME: str = 'meta-llama/Llama-2-7b'
-    SUMMARIZER_MODEL: str = 'facebook/bart-large-cnn'
-    NER_MODEL_NAME: str = 'distilbert-base-uncased'
-    QA_MODEL_NAME: str = 'distilbert-base-uncased-distilled-squad'
+    SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
+    QA_MODEL = "google/flan-t5-base"            # High-quality summarization (1.6GB)
     
-    # Training hyperparameters
-    BATCH_SIZE: int = 8
-    LEARNING_RATE: float = 2e-5
-    NUM_EPOCHS: int = 3
-    MAX_LENGTH: int = 512
-    WARMUP_STEPS: int = 500
-    
-    # Vector Database
-    VECTOR_DB_TYPE: str = 'chromadb'
-    PERSIST_DIRECTORY: str = './chroma_db'
-    
-    # Embedding
-    EMBEDDING_DIMENSION: int = 384
-    CHUNK_SIZE: int = 512
-    CHUNK_OVERLAP: int = 50
-    SIMILARITY_THRESHOLD: float = 0.5
-    TOP_K_RETRIEVAL: int = 5
-    
-    # API Configuration
-    API_HOST: str = '0.0.0.0'
-    API_PORT: int = 8000
-    API_WORKERS: int = 4
-    LOG_LEVEL: str = 'INFO'
-    
-    # MLflow
-    MLFLOW_TRACKING_URI: str = './mlruns'
-    EXPERIMENT_NAME: str = 'ai_study_assistant'
-    
-    def __post_init__(self):
-        for path in [self.RAW_DATA_PATH, self.PROCESSED_DATA_PATH, self.MODEL_SAVE_PATH]:
-            path.mkdir(parents=True, exist_ok=True)
+    # Gemini API configuration
+    GEMINI_API_KEY = "AIzaSyDPRDQFe0T85RQ1qcHnDi0uybTrDipqC-o" # Get from environment variable
+    GEMINI_MODEL = "models/gemini-2.0-flash"                    # Updated to use 2.0 model
+    EMBEDDING_MODEL = "sentence-transformers/all-mpnet-base-v2"    
+    # RAG Configuration
+    RAG_CHUNK_SIZE = 1000           # Size of text chunks for processing
+    RAG_CHUNK_OVERLAP = 200         # Overlap between chunks
+    RAG_TOP_K = 5                   # Number of documents to retrieve
+    RAG_TEMPERATURE = 0.2           # Temperature for generation
+    RAG_MAX_OUTPUT_TOKENS = 2048    # Maximum tokens in response
 
-# Usage: from src.config import Config
-# config = Config()
+    # Ollama configuration (set OLLAMA_ENABLED=True to use local LLM)
+    OLLAMA_ENABLED = True
+    OLLAMA_MODEL = "llama3.2:latest"
+    OLLAMA_BASE_URL = "http://localhost:11434"
+    # Optional: if you want to use Ollama for embeddings too
+    OLLAMA_EMBEDDING_MODEL = "nomic-embed-text"
+    
+    # Ensure directories exist
+    @staticmethod
+    def create_directories():
+        """Create necessary directories if they don't exist"""
+        os.makedirs(Config.UPLOAD_DIR, exist_ok=True)
+        os.makedirs(Config.FAISS_DB_DIR, exist_ok=True)

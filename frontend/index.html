@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎓 AI Study Assistant</h1>
+            <p>Upload PDFs, generate Q&A pairs, and chat with your documents</p>
+            <div class="status" id="status">
+                <span id="statusText">Connecting...</span>
+                <span id="docCount" class="badge">0 docs</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel - Upload & Q&A -->
+            <div class="left-panel">
+                <!-- Upload Section -->
+                <div class="card">
+                    <h2>📄 Upload PDF</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".pdf" hidden>
+                        <div class="upload-placeholder">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p>Click to upload or drag & drop</p>
+                            <span>PDF files only</span>
+                        </div>
+                    </div>
+                    <div class="upload-controls">
+                        <label for="numQuestions">Questions to generate:</label>
+                        <input type="number" id="numQuestions" value="10" min="1" max="50">
+                        <button id="uploadBtn" class="btn btn-primary">
+                            Upload & Generate Q&A
+                        </button>
+                    </div>
+                    <div id="uploadStatus" class="status-message"></div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="card">
+                    <h2>📝 Document Summary</h2>
+                    <div id="summaryText" class="summary-box">
+                        <p class="placeholder">Upload a PDF to see the summary...</p>
+                    </div>
+                    <button id="summarizeBtn" class="btn btn-secondary" disabled>
+                        Generate Summary
+                    </button>
+                </div>
+
+                <!-- Generated Q&A Section -->
+                <div class="card">
+                    <h2>❓ Generated Q&A Pairs</h2>
+                    <div id="qaList" class="qa-list">
+                        <p class="placeholder">Q&A pairs will appear here after upload...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Chat -->
+            <div class="right-panel">
+                <div class="card chat-card">
+                    <h2>💬 Chat with Documents</h2>
+                    <div id="chatMessages" class="chat-messages">
+                        <div class="message bot">
+                            <div class="message-content">
+                                <p>👋 Hello! I'm your AI Study Assistant. Upload a PDF document and ask me anything about it!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="Ask a question about your documents..."
+                            disabled
+                        >
+                        <button id="sendBtn" class="btn btn-primary" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Processing...</p>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

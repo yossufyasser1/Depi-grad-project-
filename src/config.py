@@ -1,42 +1,42 @@
-"""
-Configuration file for AI Study Assistant
-Defines paths and model settings
-"""
+"""Very simple config (kept small on purpose)."""
 import os
 
 class Config:
-    # Base directory (project root)
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Data storage paths
-    UPLOAD_DIR = os.path.join(BASE_DIR, "data", "uploads")  # Path for uploaded documents
-    FAISS_DB_DIR = os.path.join(BASE_DIR, "vector_db")      # Path for FAISS vector store
-    
-    # Model configurations
-    SUMMARIZATION_MODEL = "facebook/bart-large-cnn"
-    QA_MODEL = "google/flan-t5-base"            # High-quality summarization (1.6GB)
-    
-    # Gemini API configuration
-    GEMINI_API_KEY = "AIzaSyDPRDQFe0T85RQ1qcHnDi0uybTrDipqC-o" # Get from environment variable
-    GEMINI_MODEL = "models/gemini-2.0-flash"                    # Updated to use 2.0 model
-    EMBEDDING_MODEL = "sentence-transformers/all-mpnet-base-v2"    
-    # RAG Configuration
-    RAG_CHUNK_SIZE = 1000           # Size of text chunks for processing
-    RAG_CHUNK_OVERLAP = 200         # Overlap between chunks
-    RAG_TOP_K = 5                   # Number of documents to retrieve
-    RAG_TEMPERATURE = 0.2           # Temperature for generation
-    RAG_MAX_OUTPUT_TOKENS = 2048    # Maximum tokens in response
+    # Basic folders (just make sure they exist)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    uploads_dir = os.path.join(root, "data", "uploads")
+    db_dir = os.path.join(root, "vector_db")
 
-    # Ollama configuration (set OLLAMA_ENABLED=True to use local LLM)
-    OLLAMA_ENABLED = True
-    OLLAMA_MODEL = "llama3.2:latest"
-    OLLAMA_BASE_URL = "http://localhost:11434"
-    # Optional: if you want to use Ollama for embeddings too
-    OLLAMA_EMBEDDING_MODEL = "nomic-embed-text"
-    
-    # Ensure directories exist
+    # Models (picked small ones so it runs faster)
+    # Change these if you want different ones
+    summarize_model = "facebook/bart-large-cnn"
+    qa_model = "google/flan-t5-base"
+    embedding_model = "sentence-transformers/all-mpnet-base-v2"
+
+    # RAG settings (kept simple numbers)
+    chunk_size = 800
+    chunk_overlap = 150
+    top_k = 5
+
+    # If you want to use Gemini or Ollama, load keys from env instead of hardcoding
+    gemini_key = os.environ.get("GEMINI_API_KEY", "")  # leave empty if not set
+    gemini_model = "models/gemini-2.0-flash"
+
+    # Local LLM via Ollama (optional). Set OLLAMA_ENABLED=1 in env to turn on.
+    ollama_enabled = os.environ.get("OLLAMA_ENABLED", "0") == "1"
+    ollama_model = os.environ.get("OLLAMA_MODEL", "llama3.2:latest")
+    ollama_base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+
     @staticmethod
-    def create_directories():
-        """Create necessary directories if they don't exist"""
-        os.makedirs(Config.UPLOAD_DIR, exist_ok=True)
-        os.makedirs(Config.FAISS_DB_DIR, exist_ok=True)
+    def make_dirs():
+        for p in [Config.uploads_dir, Config.db_dir]:
+            os.makedirs(p, exist_ok=True)
+
+# Turn off heavy backends we don't use
+os.environ['TRANSFORMERS_NO_TF'] = '1'
+os.environ['TRANSFORMERS_NO_JAX'] = '1'
+os.environ['TRANSFORMERS_NO_FLAX'] = '1'
+os.environ['USE_TF'] = '0'
+
+# Create folders now
+Config.make_dirs()

@@ -3,9 +3,7 @@ Question Answer Generator - Automatically generates Q&A pairs from text
 Uses FLAN-T5-base model for better question generation
 """
 import os
-# Disable TensorFlow to prevent NumPy compatibility issues
-os.environ['TRANSFORMERS_NO_TF'] = '1'
-os.environ['USE_TF'] = '0'
+
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
@@ -73,7 +71,7 @@ class QAGenerator:
         # Tokenize
         inputs = self.tokenizer(
             prompt,
-            max_length=512,
+            max_length=1024,
             truncation=True,
             return_tensors="pt"
         )

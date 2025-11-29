@@ -1,13 +1,9 @@
 """
 Summarizer - Dedicated summarization module using pretrained models
-Uses BART-large-CNN for high-quality text summarization
+Uses BART-large-CNN for high-quality text summarization 
 """
 import os
-# Disable TensorFlow/JAX/Flax to prevent NumPy compatibility issues and TF imports
-os.environ['TRANSFORMERS_NO_TF'] = '1'
-os.environ['TRANSFORMERS_NO_JAX'] = '1'
-os.environ['TRANSFORMERS_NO_FLAX'] = '1'
-os.environ['USE_TF'] = '0'
+
 
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch

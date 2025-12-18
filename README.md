@@ -4,15 +4,15 @@ Comprehensive documentation for the FastAPI backend implementing local-first Ret
 
 ## Overview
 - Purpose: Answer study questions from your documents with RAG, generate summaries, and create Q&A pairs.
-- Local-first: Retrieval uses FAISS + sentence-transformers locally. Generation uses Ollama when enabled; Gemini is fallback.
-- Stack: FastAPI, LangChain, FAISS, sentence-transformers, Transformers (PyTorch), optional Google Generative AI.
+- Local-first: Retrieval uses FAISS + sentence-transformers locally. Generation uses Ollama exclusively.
+- Stack: FastAPI, LangChain, FAISS, sentence-transformers, Transformers (PyTorch), Ollama.
 
 ## Architecture
 - `main.py`: FastAPI app and endpoints.
 - `src/config.py`: Central configuration for paths, models, providers.
 - `src/processing/pdf_processor.py`: Extracts text/chunks from PDFs.
 - `src/processing/improved_rag_retriever.py`: Builds/queries FAISS with local embeddings.
-- `src/inference/improved_llm_reader.py`: Provider-aware LLM (Ollama or Gemini) for answers.
+- `src/inference/improved_llm_reader.py`: Ollama-based LLM for answers.
 - `src/inference/summarizer.py`: BART-large-CNN summarization with hierarchical synthesis.
 - `src/inference/qa_generator.py`: FLAN‑T5 Q&A generation from plain text.
 
@@ -54,7 +54,6 @@ Comprehensive documentation for the FastAPI backend implementing local-first Ret
    - `RAG_TEMPERATURE`, `RAG_MAX_OUTPUT_TOKENS`
 - Generation Providers
    - Ollama (local): `OLLAMA_ENABLED`, `OLLAMA_MODEL` (e.g., `llama3.2:latest`), `OLLAMA_BASE_URL`
-   - Gemini (fallback): `GEMINI_API_KEY`, `GEMINI_MODEL` (e.g., `models/gemini-2.0-flash`)
 - Tasks
    - Summarization: `SUMMARIZATION_MODEL = "facebook/bart-large-cnn"`
    - Q&A: `QA_MODEL = "google/flan-t5-base"`
@@ -63,8 +62,7 @@ Comprehensive documentation for the FastAPI backend implementing local-first Ret
 - Embeddings: `all-mpnet-base-v2` — strong semantic retrieval; CPU-friendly.
 - Vector store: FAISS — fast similarity search; persisted locally.
 - LLM (Chat):
-   - Ollama (`llama3.2:latest` or smaller variants) — private, local inference.
-   - Gemini — cloud fallback for environments without Ollama.
+   - Ollama (`llama3.2:latest` or other models) — private, local inference.
 - Summarization: BART-large-CNN — high quality abstractive summaries.
 - Q&A: FLAN‑T5‑base — effective instruction-tuned generation for pairs.
 
@@ -74,9 +72,9 @@ Comprehensive documentation for the FastAPI backend implementing local-first Ret
 - Hierarchical: chunk long inputs (~4000 chars, overlap 400), summarize per-chunk, then synthesize a final summary.
 
 ## Provider Selection (LLM)
-- `ImprovedLLMReader` selects provider at init:
-   - If `Config.OLLAMA_ENABLED=True`: uses `langchain_community.llms.Ollama` and `invoke(prompt)`.
-   - Else: uses Gemini chat (`google.generativeai`), keeps a short chat history, calls `send_message(content)`.
+- `ImprovedLLMReader` uses Ollama exclusively:
+   - Uses `langchain_community.llms.Ollama` and `invoke(prompt)`.
+   - Requires Ollama running locally at `OLLAMA_BASE_URL`.
 - Conversation: recent messages are included for coherence; name detection heuristics applied.
 
 ## RAG Details

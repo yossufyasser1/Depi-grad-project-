@@ -7,17 +7,11 @@ import os
 
 
 class PDFProcessor:
-    """Handles PDF text extraction and chunking"""
+    """Handles simple PDF text extraction."""
     
-    def __init__(self, chunk_size=500):
-        """
-        Initialize PDF processor
-        
-        Args:
-            chunk_size (int): Size of text chunks in characters (default: 500)
-        """
-        self.chunk_size = chunk_size
-        print(f"📄 PDF Processor initialized (chunk size: {chunk_size} chars)\n")
+    def __init__(self):
+        """Initialize a minimal PDF processor."""
+        print("📄 PDF Processor initialized (extraction only)\n")
     
     def extract_text(self, pdf_path):
         """
@@ -59,80 +53,35 @@ class PDFProcessor:
             print(f"❌ Error extracting text: {str(e)}\n")
             return ""
     
-    def chunk_text(self, text):
-        """
-        Split text into chunks of specified size
-        
-        Args:
-            text (str): Text to split into chunks
-        
-        Returns:
-            list: List of text chunks
-        """
-        print(f"✂️ Splitting text into chunks of {self.chunk_size} characters...")
-        
-        if not text:
-            print("⚠️ No text to chunk\n")
-            return []
-        
-        chunks = []
-        
-        # Split text into chunks with overlap for context continuity
-        overlap = 50  # Characters to overlap between chunks
-        start = 0
-        
-        while start < len(text):
-            # Get chunk from start to start + chunk_size
-            end = start + self.chunk_size
-            chunk = text[start:end]
-            
-            # Only add non-empty chunks
-            if chunk.strip():
-                chunks.append(chunk.strip())
-            
-            # Move start position (with overlap)
-            start = end - overlap
-        
-        print(f"✅ Created {len(chunks)} chunks\n")
-        return chunks
+    # Removed chunking to keep RAG responsibilities in ImprovedRAGRetriever
     
     def process_pdf(self, pdf_path):
         """
-        Complete pipeline: Extract text from PDF and split into chunks
+        Extract text from a single PDF file.
         
         Args:
             pdf_path (str): Path to the PDF file
         
         Returns:
-            tuple: (all_text, chunks) - Full text and list of chunks
+            str: Extracted full text
         """
-        print("🚀 Starting PDF processing pipeline...\n")
-        
-        # Extract text
+        print("🚀 Starting PDF extraction pipeline...\n")
         text = self.extract_text(pdf_path)
-        
         if not text:
             print("⚠️ No text extracted from PDF\n")
-            return "", []
-        
-        # Create chunks
-        chunks = self.chunk_text(text)
-        
-        print(f"✅ Pipeline complete!")
-        print(f"   📝 Total text: {len(text)} characters")
-        print(f"   📦 Total chunks: {len(chunks)}\n")
-        
-        return text, chunks
+            return ""
+        print(f"✅ Extraction complete! 📝 Total text: {len(text)} characters\n")
+        return text
     
     def process_multiple_pdfs(self, pdf_paths):
         """
-        Process multiple PDF files
+        Extract text from multiple PDF files (no chunking)
         
         Args:
             pdf_paths (list): List of PDF file paths
         
         Returns:
-            dict: Dictionary with filenames as keys and (text, chunks) as values
+            dict: Dictionary with filenames as keys and extracted text/length
         """
         print(f"📚 Processing {len(pdf_paths)} PDF files...\n")
         
@@ -141,11 +90,9 @@ class PDFProcessor:
         for i, pdf_path in enumerate(pdf_paths, 1):
             print(f"--- File {i}/{len(pdf_paths)} ---")
             filename = os.path.basename(pdf_path)
-            text, chunks = self.process_pdf(pdf_path)
+            text = self.process_pdf(pdf_path)
             results[filename] = {
                 'text': text,
-                'chunks': chunks,
-                'chunk_count': len(chunks),
                 'char_count': len(text)
             }
         

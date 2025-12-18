@@ -108,7 +108,7 @@ async def startup_event():
     # Initialize all components
     print("📦 Initializing components...")
     
-    pdf_processor = PDFProcessor(chunk_size=500)
+    pdf_processor = PDFProcessor()
     rag_retriever = ImprovedRAGRetriever()  # Enhanced RAG with FAISS
     llm_reader = ImprovedLLMReader()  # Enhanced LLM with Gemini 2.0
     qa_generator = QAGenerator()
@@ -174,16 +174,16 @@ async def upload_pdf(file: UploadFile = File(...)):
         with open(upload_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        text, chunks = pdf_processor.process_pdf(upload_path)
+        text = pdf_processor.process_pdf(upload_path)
         
-        if not chunks:
+        if not text:
             raise HTTPException(status_code=400, detail="Could not extract text from PDF")
         
-        # Add to RAG (FAISS)
+        # Add to RAG (FAISS) - retriever handles chunking internally
         success = rag_retriever.load_documents()
         
         if success:
-            chunks_added = len(chunks)
+            chunks_added = rag_retriever.get_database_stats().get('document_count', 0)
         else:
             raise HTTPException(status_code=500, detail="Failed to add documents to RAG system")
         
@@ -309,9 +309,9 @@ async def upload_pdf_with_qa(file: UploadFile = File(...), num_questions: int = 
             shutil.copyfileobj(file.file, buffer)
         
         # Process PDF
-        text, chunks = pdf_processor.process_pdf(upload_path)
+        text = pdf_processor.process_pdf(upload_path)
         
-        if not chunks:
+        if not text:
             print("❌ No text extracted from PDF\n")
             raise HTTPException(status_code=400, detail="Could not extract text from PDF")
         
@@ -323,7 +323,7 @@ async def upload_pdf_with_qa(file: UploadFile = File(...), num_questions: int = 
         
         if success:
             print("✅ Documents added to Enhanced RAG successfully")
-            chunks_added = len(chunks)
+            chunks_added = rag_retriever.get_database_stats().get('document_count', 0)
         else:
             print("❌ Enhanced RAG update failed")
             raise HTTPException(status_code=500, detail="Failed to add documents to RAG system")
